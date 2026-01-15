@@ -1,10 +1,6 @@
 package pms_core.model.response;
 
 import lombok.Data;
-import pms_core.dao.entity.OrganizationsEntity;
-import pms_core.dao.entity.ParkingsEntity;
-import pms_core.dao.entity.SpacesEntity;
-import pms_core.dao.entity.TariffsEntity;
 
 import java.time.LocalDateTime;
 
@@ -13,10 +9,10 @@ public class VehicleResponse {
 
     private Integer id;
     private String plate;
-    private OrganizationsEntity organization;
-    private ParkingsEntity parking;
-    private SpacesEntity space;
-    private TariffsEntity tariff;
+    private Integer organization;
+    private Integer parking;
+    private Integer space;
+    private Integer tariff;
     private LocalDateTime scanned;
     private LocalDateTime created;
     private LocalDateTime updated;

@@ -14,9 +14,9 @@ public class TariffResponse {
 
     private Integer id;
     private String name;
-    private OrganizationsEntity organization;
-    private ParkingsEntity parking;
-    private SpacesEntity space;
+    private Integer organization;
+    private Integer parking;
+    private Integer space;
     private VehicleType vehicleType;
     private Integer durationStart;
     private Integer durationTime;

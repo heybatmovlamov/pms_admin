@@ -5,16 +5,18 @@ import pms_core.dao.entity.OrganizationsEntity;
 import pms_core.dao.entity.ParkingsEntity;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class UserResponse {
 
     private Integer id;
-    private OrganizationsEntity organization;
-    private ParkingsEntity parking;
+    private Integer organization;
+    private Integer parking;
     private String name;
     private String surname;
-    private Timestamp birthdate;
+    private LocalDate birthdate;
     private String gender;
     private String mobile;
     private String email;
@@ -23,8 +25,8 @@ public class UserResponse {
     private Integer role;
     private String language;
     private Integer bitmask;
-    private Timestamp created;
-    private Timestamp modified;
+    private LocalDateTime created;
+    private LocalDateTime modified;
     private byte[] image;
     private Integer status;
 }

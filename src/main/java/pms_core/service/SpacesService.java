@@ -3,11 +3,14 @@ package pms_core.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pms_core.dao.entity.OrganizationsEntity;
+import pms_core.dao.entity.SpacesEntity;
 import pms_core.dao.repository.SpacesRepository;
 import pms_core.mapper.SpaceMapper;
 import pms_core.model.request.SpaceRequest;
 import pms_core.model.response.SpaceResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,17 +22,26 @@ public class SpacesService {
 
     @Transactional(readOnly = true)
     public List<SpaceResponse> findAll(){
-        return mapper.toResponse(repository.findAll());
+        return mapper.toResponse(repository.findAllSpaces());
     }
 
     @Transactional
     public SpaceResponse addSpace(SpaceRequest request){
-        return mapper.toResponse(repository.save(mapper.toEntity(request)));
+        SpacesEntity entity = mapper.toEntity(request);
+        entity.setCreated(LocalDateTime.now());
+        entity.setUpdated(LocalDateTime.now());
+        return mapper.toResponse(repository.save(entity));
     }
 
-//    public SpaceResponse updateSpace(SpaceRequest request){
-//
-//    }
+    public SpaceResponse updateSpace(Integer id,SpaceRequest request){
+        SpacesEntity entity = repository.findByIdAndStatusAndActive(id,1,1)
+                .orElseThrow(() -> new RuntimeException("Space not found"));
+
+        mapper.updateEntityFromRequest(request, entity);
+        entity.setUpdated(LocalDateTime.now());
+
+        return mapper.toResponse(repository.save(entity));
+    }
 
     @Transactional
     public String deleteSpace(Integer id){

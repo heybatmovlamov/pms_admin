@@ -1,6 +1,5 @@
 package pms_core.model.response;
 
-import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;

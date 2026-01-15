@@ -3,11 +3,14 @@ package pms_core.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pms_core.dao.entity.OrganizationsEntity;
+import pms_core.dao.entity.UsersEntity;
 import pms_core.dao.repository.UsersRepository;
 import pms_core.mapper.UserMapper;
 import pms_core.model.request.UserRequest;
 import pms_core.model.response.UserResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,17 +22,29 @@ public class UsersService {
 
     @Transactional(readOnly = true)
     public List<UserResponse> findAll(){
-        return mapper.toResponse(repository.findAll());
+        return mapper.toResponse(repository.findAllUsers());
     }
 
     @Transactional
     public UserResponse addUser(UserRequest request){
-        return mapper.toResponse(repository.save(mapper.toEntity(request)));
+        UsersEntity entity = mapper.toEntity(request);
+        entity.setStatus(1);
+        entity.setCreated(LocalDateTime.now());
+        entity.setModified(LocalDateTime.now());
+
+        return mapper.toResponse(repository.save(entity));
     }
 
-//    public UserResponse updateUser(UserRequest request){
-//
-//    }
+    @Transactional
+    public UserResponse updateUser(Integer id , UserRequest request){
+        UsersEntity entity = repository.findByIdAndStatus(id,1)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        mapper.updateEntityFromRequest(request, entity);
+        entity.setModified(LocalDateTime.now());
+
+        return mapper.toResponse(repository.save(entity));
+    }
 
     @Transactional
     public String deleteUser(Integer id){

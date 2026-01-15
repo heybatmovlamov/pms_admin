@@ -10,13 +10,9 @@ import java.time.LocalDateTime;
 public class SpaceRequest {
 
     private String name;
-    private OrganizationsEntity organization;
-    private ParkingsEntity parking;
+    private Integer organization;
+    private Integer parking;
     private Integer level;
     private String section;
     private String description;
-    private LocalDateTime created;
-    private LocalDateTime updated;
-    private Integer active;
-    private Integer status;
 }

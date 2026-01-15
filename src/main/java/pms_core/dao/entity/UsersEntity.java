@@ -1,13 +1,13 @@
 package pms_core.dao.entity;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-@Entity
 @Table(name = "users", schema = "pms_core")
 @Getter
 @Setter
@@ -16,58 +16,22 @@ import java.sql.Timestamp;
 public class UsersEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization")
-    private OrganizationsEntity organization;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parking")
-    private ParkingsEntity parking;
-
-    @Column(length = 100)
+    private Integer organization;
+    private Integer parking;
     private String name;
-
-    @Column(length = 100)
     private String surname;
-
-    @Column
-    private Timestamp birthdate;
-
-    @Column(length = 10)
+    private LocalDate birthdate;
     private String gender;
-
-    @Column(length = 20)
     private String mobile;
-
-    @Column(length = 100)
     private String email;
-
-    @Column(length = 100)
     private String username;
-
-    @Column(length = 100)
     private String password;
-
     private Integer role;
-
-    @Column(length = 2)
     private String language;
-
     private Integer bitmask;
-
-    @Column
-    @CreationTimestamp
-    private Timestamp created;
-
-    @Column
-    @UpdateTimestamp
-    private Timestamp modified;
-
-    @Lob
+    private LocalDateTime created;
+    private LocalDateTime modified;
     private byte[] image;
-
     private Integer status = 1;
 }

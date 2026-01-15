@@ -1,10 +1,11 @@
 package pms_core.model.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
 public class OrganizationRequest {
 
     private String name;
@@ -16,9 +17,6 @@ public class OrganizationRequest {
     private String tplMob;
     private String tplWeb;
     private Integer bitmask;
-    private LocalDateTime created;
-    private LocalDateTime modified;
     private String description;
     private byte[] image;
-    private Integer status;
 }

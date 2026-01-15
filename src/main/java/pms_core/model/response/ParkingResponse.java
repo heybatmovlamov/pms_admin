@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class ParkingResponse {
 
     private Integer id;
-    private OrganizationsEntity organization;
+    private Integer organization;
     private String name;
     private String email;
     private LocalDateTime created;

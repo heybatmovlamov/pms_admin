@@ -3,11 +3,14 @@ package pms_core.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pms_core.dao.entity.OrganizationsEntity;
+import pms_core.dao.entity.ParkingsEntity;
 import pms_core.dao.repository.ParkingsRepository;
 import pms_core.mapper.ParkingMapper;
 import pms_core.model.request.ParkingRequest;
 import pms_core.model.response.ParkingResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,17 +22,25 @@ public class ParkingsService {
 
     @Transactional(readOnly = true)
     public List<ParkingResponse> findAll(){
-        return mapper.toResponse(repository.findAll());
+        return mapper.toResponse(repository.findAllParkings());
     }
 
     @Transactional
     public ParkingResponse addParking(ParkingRequest request){
-        return mapper.toResponse(repository.save(mapper.toEntity(request)));
+        ParkingsEntity entity = mapper.toEntity(request);
+        entity.setCreated(LocalDateTime.now());
+        entity.setUpdated(LocalDateTime.now());
+        return mapper.toResponse(repository.save(entity));
     }
 
-//    public ParkingResponse updateParking(ParkingRequest request){
-//
-//    }
+    public ParkingResponse updateParking(Integer id,ParkingRequest request){
+        ParkingsEntity entity = repository.findByIdAndStatusAndActive(id,1,1)
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
+
+        mapper.updateEntityFromRequest(request, entity);
+        entity.setUpdated(LocalDateTime.now());
+        return mapper.toResponse(repository.save(entity));
+    }
 
     @Transactional
     public String deleteParking(Integer id){

@@ -11,8 +11,8 @@ public class SpaceResponse {
 
     private Integer id;
     private String name;
-    private OrganizationsEntity organization;
-    private ParkingsEntity parking;
+    private Integer organization;
+    private Integer parking;
     private Integer level;
     private String section;
     private String description;

@@ -1,10 +1,10 @@
 package pms_core.model.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
+@AllArgsConstructor
 public class CameraRequest {
 
     private String name;
@@ -14,8 +14,4 @@ public class CameraRequest {
     private Integer space;
     private String type;
     private String description;
-    private LocalDateTime created;
-    private LocalDateTime updated;
-    private Integer active;
-    private Integer status;
 }

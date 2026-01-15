@@ -1,4 +1,4 @@
-package pms_core.model.request;
+package pms_core.model.request.tariff;
 
 import lombok.Data;
 import pms_core.dao.entity.OrganizationsEntity;
@@ -13,9 +13,9 @@ import java.time.LocalTime;
 public class TariffRequest {
 
     private String name;
-    private OrganizationsEntity organization;
-    private ParkingsEntity parking;
-    private SpacesEntity space;
+    private Integer organization;
+    private Integer parking;
+    private Integer space;
     private VehicleType vehicleType;
     private Integer durationStart;
     private Integer durationTime;
@@ -30,6 +30,4 @@ public class TariffRequest {
     private BigDecimal discount;
     private BigDecimal extraCharge;
     private String description;
-    private Integer active;
-    private Integer status;
 }

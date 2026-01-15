@@ -1,11 +1,6 @@
 package pms_core.model.response;
 
-import jakarta.persistence.*;
 import lombok.Data;
-import pms_core.dao.entity.OrganizationsEntity;
-import pms_core.dao.entity.ParkingsEntity;
-import pms_core.dao.entity.SpacesEntity;
-import pms_core.dao.entity.TariffsEntity;
 
 import java.time.LocalDateTime;
 
@@ -13,10 +8,10 @@ import java.time.LocalDateTime;
 public class OwnerResponse {
 
     private Integer id;
-    private OrganizationsEntity organization;
-    private ParkingsEntity parking;
-    private SpacesEntity space;
-    private TariffsEntity tariff;
+    private Integer organization;
+    private Integer parking;
+    private Integer space;
+    private Integer tariff;
     private String name;
     private String plate;
     private Integer role;

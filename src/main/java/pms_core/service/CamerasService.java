@@ -3,11 +3,14 @@ package pms_core.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pms_core.dao.entity.CamerasEntity;
+import pms_core.dao.entity.OwnersEntity;
 import pms_core.dao.repository.CamerasRepository;
 import pms_core.mapper.CameraMapper;
 import pms_core.model.request.CameraRequest;
 import pms_core.model.response.CameraResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,7 +22,7 @@ public class CamerasService {
 
     @Transactional(readOnly = true)
     public List<CameraResponse> findAll(){
-       return mapper.toResponse(repository.findAll());
+       return mapper.toResponse(repository.findAllCamera());
     }
 
     @Transactional
@@ -27,9 +30,16 @@ public class CamerasService {
         return mapper.toResponse(repository.save(mapper.toEntity(request)));
     }
 
-//    public CameraResponse updateCamera(CameraRequest request){
-//
-//    }
+    @Transactional
+    public CameraResponse updateCamera(Integer id,CameraRequest request){
+        CamerasEntity entity = repository.findByIdAndStatusAndActive(id,1,1)
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
+
+        mapper.updateEntityFromRequest(request, entity);
+        entity.setUpdated(LocalDateTime.now());
+
+        return mapper.toResponse(repository.save(entity));
+    }
 
     @Transactional
     public String deleteCamera(Integer cameraId){

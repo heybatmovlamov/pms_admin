@@ -1,15 +1,21 @@
 package pms_core.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+import pms_core.dao.entity.OrganizationsEntity;
 import pms_core.dao.repository.OrganizationsRepository;
 import pms_core.mapper.OrganizationMapper;
 import pms_core.model.request.OrganizationRequest;
 import pms_core.model.response.OrganizationResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrganizationsService {
@@ -19,17 +25,28 @@ public class OrganizationsService {
 
     @Transactional(readOnly = true)
     public List<OrganizationResponse> findAll(){
-        return mapper.toResponse(repository.findAll());
+        return mapper.toResponse(repository.findAllOrganizations());
     }
 
     @Transactional
     public OrganizationResponse addOrganization(OrganizationRequest request){
-        return mapper.toResponse(repository.save(mapper.toEntity(request)));
+        OrganizationsEntity entity = mapper.toEntity(request);
+        entity.setStatus(1);
+        entity.setCreated(LocalDateTime.now());
+        entity.setModified(LocalDateTime.now());
+        log.info(entity.toString());
+        return mapper.toResponse(repository.save(entity));
     }
 
-//    public OrganizationResponse updateOrganization(OrganizationRequest request){
-//
-//    }
+    public OrganizationResponse updateOrganization(Integer id, OrganizationRequest request) {
+        OrganizationsEntity entity = repository.findByIdAndStatus(id,1)
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
+
+        mapper.updateEntityFromRequest(request, entity);
+        entity.setModified(LocalDateTime.now());
+
+        return mapper.toResponse(repository.save(entity));
+    }
 
     @Transactional
     public String deleteOrganization(Integer id){

@@ -1,10 +1,11 @@
 package pms_core.mapper;
 
 
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
+import org.mapstruct.*;
 import pms_core.dao.entity.CamerasEntity;
+import pms_core.dao.entity.OrganizationsEntity;
 import pms_core.model.request.CameraRequest;
+import pms_core.model.request.OrganizationRequest;
 import pms_core.model.response.CameraResponse;
 
 import java.util.List;
@@ -18,4 +19,9 @@ import static org.mapstruct.ReportingPolicy.IGNORE;
         unmappedTargetPolicy = IGNORE)
 public interface CameraMapper extends  EntityMapper<CameraRequest, CameraResponse, CamerasEntity>{
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromRequest(
+            CameraRequest request,
+            @MappingTarget CamerasEntity entity
+    );
 }
