@@ -8,9 +8,8 @@ import pms_core.dao.entity.VehiclesEntity;
 import pms_core.dao.repository.VehiclesRepository;
 import pms_core.model.local.request.CameraPayload;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,14 +18,12 @@ public class VehicleService {
 
     private final VehiclesRepository vehicleRepository;
 
-    public VehiclesEntity getActiveVehicleByPlate(CameraPayload cameraPayload) {
-        return vehicleRepository.findFirstByPlateAndActiveAndStatusOrderByCreatedDesc(cameraPayload.getPlate(), 1, 1).get();
+    public Optional<VehiclesEntity> findActiveVehicleByPlate(String plate) {
+        return vehicleRepository.findFirstByPlateAndActiveAndStatusOrderByCreatedDesc(plate, 1, 1);
     }
 
-    public void vehicleEqualsNull(VehiclesEntity vehiclesEntity) {
-        if (vehiclesEntity == null) {
-
-        }
+    public VehiclesEntity updateVehicle(VehiclesEntity vehicle) {
+        return vehicleRepository.save(vehicle);
     }
 
     public void ifVehicleEntered(VehiclesEntity entity) {
@@ -100,6 +97,18 @@ public class VehicleService {
                 .build();
 
         return vehicleRepository.save(entity);
+    }
+
+    public VehiclesEntity updateVehicleAsExit(VehiclesEntity vehicle, CamerasEntity camera, Integer ownerId) {
+        vehicle.setExit(LocalDateTime.now());
+        vehicle.setAction("OUT");
+        vehicle.setActive(0);
+        vehicle.setStatus(3);
+        vehicle.setColor(camera.getName() + ":" + camera.getIp());
+        if (ownerId != null) {
+            vehicle.setOwner(ownerId);
+        }
+        return vehicleRepository.save(vehicle);
     }
 
 }

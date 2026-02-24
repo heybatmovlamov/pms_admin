@@ -16,14 +16,29 @@ public class TariffService {
 
     public TariffsEntity getTariff(CamerasEntity camera, LocalDateTime time) {
         int day = time.getDayOfWeek().getValue();
-
         return tariffRepository.findByOrganizationAndParkingAndSpaceAndValidDaysAndActiveAndStatus(
                 camera.getOrganization(),
                 camera.getParking(),
                 camera.getSpace(),
-                day
-                ,1
-                ,1
+                day,
+                1,
+                1
         ).orElseThrow(() -> new IllegalStateException("Tariff not found"));
+    }
+
+    public TariffsEntity getTariffById(Integer tariffId) {
+        return tariffRepository.findByIdAndStatusAndActive(tariffId, 1, 1)
+                .orElseThrow(() -> new IllegalStateException("Tariff not found for id: " + tariffId));
+    }
+
+    public TariffsEntity getTariff(Integer organizationId, Integer parkingId, Integer spaceId, int dayOfWeek) {
+        return tariffRepository.findByOrganizationAndParkingAndSpaceAndValidDaysAndActiveAndStatus(
+                organizationId,
+                parkingId,
+                spaceId,
+                dayOfWeek,
+                1,
+                1
+        ).orElseThrow(() -> new IllegalStateException("No tariff available for this day of the week"));
     }
 }

@@ -1,39 +1,37 @@
 package pms_core.controller.local;
 
-
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import pms_core.model.local.response.CcResult;
 import pms_core.service.local.ManageService;
 
 @RestController
-//@RequestMapping("/cc")
+@RequestMapping("/cc")
 @RequiredArgsConstructor
-@Slf4j
 public class CameraController {
 
     private final ManageService manageService;
 
-//    @PostMapping("/in")
-//    public void vehicleIn(
-//            @RequestBody String request,
-//            HttpServletRequest httpRequest
-//    ) {
-//        manageService.in(httpRequest.getRemoteAddr(),request);
-//    }
+    @GetMapping("/info")
+    public ResponseEntity<CcResult> info() {
+        return ResponseEntity.ok(manageService.info());
+    }
 
-//    @PostMapping("/out")
-//    public ResponseEntity<?> vehicleOut(
-//            @RequestBody CameraPayload request,
-//            HttpServletRequest httpRequest) {
-//        String clientIp = httpRequest.getRemoteAddr();
-//        return ResponseEntity.ok(
-//                cameraService.vehicleOut(request, clientIp)
-//        );
-//    }
+    @PostMapping("/in")
+    public ResponseEntity<CcResult> vehicleIn(
+            @RequestBody String request,
+            HttpServletRequest httpRequest
+    ) {
+        return ResponseEntity.ok(manageService.in(httpRequest.getRemoteAddr(), request));
+    }
+
+    @PostMapping("/out")
+    public ResponseEntity<CcResult> vehicleOut(
+            @RequestBody String request,
+            HttpServletRequest httpRequest
+    ) {
+        return ResponseEntity.ok(manageService.out(httpRequest.getRemoteAddr(), request));
+    }
 }
-

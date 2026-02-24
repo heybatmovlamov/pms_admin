@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface TariffsRepository extends CrudRepository<TariffsEntity, Integer> {
 
     Optional<TariffsEntity> findByIdAndStatusAndActive(Integer id, Integer status, Integer active);
-    Optional<TariffsEntity> findByOrganizationAndParkingAndSpaceAndValidDaysAndActiveAndStatus(Integer organization, Integer parking, Integer space , Integer validDays, Integer active,Integer status);
+    Optional<TariffsEntity> findByOrganizationAndParkingAndSpaceAndValidDaysAndActiveAndStatus(Integer organization, Integer parking, Integer space, Integer validDays, Integer active, Integer status);
 
     @Query("SELECT * FROM pms_core.tariffs")
     List<TariffsEntity> findAllTariffs();

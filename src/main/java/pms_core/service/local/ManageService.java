@@ -7,14 +7,25 @@ import pms_core.dao.entity.CamerasEntity;
 import pms_core.dao.entity.OwnersEntity;
 import pms_core.dao.entity.TariffsEntity;
 import pms_core.dao.entity.VehiclesEntity;
+import pms_core.exception.BadRequestException;
+import pms_core.exception.BlockedException;
+import pms_core.exception.CameraNotFoundException;
+import pms_core.exception.CameraScanException;
+import pms_core.exception.NotPaidException;
 import pms_core.model.local.request.CameraPayload;
+import pms_core.model.local.response.CcResult;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ManageService {
+
+    private static final DateTimeFormatter CC_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final CameraFunctionService cameraFunctionService;
     private final CameraService cameraService;
@@ -22,109 +33,136 @@ public class ManageService {
     private final OwnerService ownerService;
     private final VehicleService vehicleService;
     private final TariffService tariffService;
+    private final SCService scService;
 
-    public void in(String clientIp, String request) {
-        CamerasEntity camera = cameraService.getCamera(clientIp);//ip ə görə kamera tapılması
-        CameraPayload cameraPayload = cameraFunctionService.parsePayload(request, camera.getType());// camera type a görə request göndərilməsi
+    public CcResult info() {
+        return CcResult.builder().result("READY").build();
+    }
 
-        checkPlate(camera, cameraPayload);
-        checkDate(cameraPayload);
+    public CcResult in(String clientIp, String request) {
+        log.info("IN request started");
 
-        ownerService.ifExistBlockedOwnerThrow(cameraPayload.getPlate());//plate ə görə axtarır əgər varsa block olunmuş throw edir exception
+        log.info("Find camera data ip : " + clientIp);
+        CamerasEntity camera = cameraService.findCamera(clientIp)
+                .orElseThrow(CameraNotFoundException::new);
 
-        VehiclesEntity vehicle = vehicleService.getActiveVehicleByPlate(cameraPayload);//plate ə görə aktiv maşını tapır əgər varsa reset edir
-        vehicleService.ifVehicleEntered(vehicle);
+        log.info("Find payload by type : "+camera.getType());
+        CameraPayload payload = cameraFunctionService.parsePayload(request, camera.getType());
 
-        TariffsEntity tariff = tariffService.getTariff(camera, parseDate(cameraPayload.getDateTime()));
+        log.info("Validation plate and date");
+        validatePlate(camera, payload);
+        validateDate(payload);
 
-        VehiclesEntity in = vehicleService.addVehicleIn("IN", cameraPayload.getPlate(), parseDate(cameraPayload.getDateTime()), vehicle.getAction(), tariff.getId(), tariff.getDurationStart(), camera);
+        String plate = payload.getPlate();
+        if (ownerService.isBlocked(plate)) {
+            log.info("CC IN: plate {} is BLOCKED", plate);
+            panelService.print(camera.getDescription(), "BLOCKED");
+            throw new BlockedException();
+        }
+
+        Optional<VehiclesEntity> existingVehicle = vehicleService.findActiveVehicleByPlate(plate);
+        existingVehicle.ifPresent(vehicleService::ifVehicleEntered);
+
+        LocalDateTime dateTime = parseDate(payload.getDateTime());
+        TariffsEntity tariff = tariffService.getTariff(camera, dateTime);
+
+        VehiclesEntity entered = vehicleService.addVehicleIn(
+                "IN",
+                plate,
+                dateTime,
+                "IN",
+                tariff.getId(),
+                tariff.getDurationStart(),
+                camera
+        );
 
         panelService.print(camera.getDescription(), "KECIN");
-        cameraFunctionService.openDoor(camera.getType(), clientIp);//camera typeə və ip yə görə şlanqbaunu açır
+        cameraFunctionService.openDoor(camera.getType(), clientIp);
 
-        log.info("successfully opened door for {}", in);
+        log.info("CC IN success: {}", entered);
+
+        return CcResult.builder()
+                .result("entered")
+                .plate(entered.getPlate())
+                .scanned(formatDateTime(entered.getScanned()))
+                .created(formatDateTime(entered.getCreated()))
+                .tariff(String.valueOf(entered.getTariff()))
+                .action(entered.getAction())
+                .build();
     }
 
-    public void out(String clientIp, String request) {
-        CamerasEntity camera = cameraService.getCamera(clientIp);//ip ə görə kamera tapılması
-        CameraPayload cameraPayload = cameraFunctionService.parsePayload(request, camera.getType());// camera type a görə request göndərilməsi
+    public CcResult out(String clientIp, String request) {
+        CamerasEntity camera = cameraService.findCamera(clientIp)
+                .orElseThrow(CameraNotFoundException::new);
 
-        checkPlate(camera, cameraPayload);
-        checkDate(cameraPayload);
+        CameraPayload payload = cameraFunctionService.parsePayload(request, camera.getType());
 
-        VehiclesEntity vehicle = vehicleService.getActiveVehicleByPlate(cameraPayload);//plate ə görə aktiv maşını tapır əgər varsa reset edir
-        if (vehicle == null) {
+        validatePlate(camera, payload);
+        validateDate(payload);
+
+        String plate = payload.getPlate();
+        LocalDateTime dateTime = parseDate(payload.getDateTime());
+        Optional<VehiclesEntity> vehicleOpt = vehicleService.findActiveVehicleByPlate(plate);
+
+        if (vehicleOpt.isEmpty()) {
+            vehicleService.addVehicleOut("OUT", plate, 1, 0, dateTime, camera, 0, 4);
             panelService.print(camera.getDescription(), "KECIN");
-            cameraFunctionService.openDoor(camera.getType(), clientIp);//camera typeə və ip yə görə şlanqbaunu açır
-
-            VehiclesEntity vehiclesEntity = vehicleService.addVehicleOut("OUT",
-                    cameraPayload.getPlate(),
-                    1,
-                    0,
-                    parseDate(cameraPayload.getDateTime()),
-                    camera,
-                    0,
-                    4);
-
-            log.info("successfully opened vehicle out for {}", vehiclesEntity);
+            cameraFunctionService.openDoor(camera.getType(), clientIp);
+            log.info("CC OUT: unknown vehicle, opened door");
+            return CcResult.builder().result("leaved").build();
         }
 
-        OwnersEntity owner = ownerService.findOwnerByPlate(cameraPayload.getPlate());
+        VehiclesEntity vehicle = vehicleOpt.get();
+        OwnersEntity owner = ownerService.findOwnerByPlate(vehicle.getPlate());
+
         if (owner != null) {
-            log.info("Found Owner: " + owner.getName());
-            vehicleService.addVehicleOut("OUT",
-                    cameraPayload.getPlate(),
-                    1,
-                    owner.getId(),
-                    parseDate(cameraPayload.getDateTime()),
-                    camera,
-                    0,
-                    3);
-
+            log.info("CC OUT: found owner {}", owner.getName());
+            vehicleService.updateVehicleAsExit(vehicle, camera, owner.getId());
             panelService.print(camera.getDescription(), "KECIN");
-            cameraFunctionService.openDoor(camera.getType(), clientIp);//camera typeə və ip yə görə şlanqbaunu açır
+            cameraFunctionService.openDoor(camera.getType(), clientIp);
+            return CcResult.builder().result("leaved").build();
         }
 
+        double price = scService.calculateParkingPrice(vehicle);
+        if (price == 0.0) {
+            vehicleService.updateVehicleAsExit(vehicle, camera, null);
+            panelService.print(camera.getDescription(), "KECIN");
+            cameraFunctionService.openDoor(camera.getType(), clientIp);
+            return CcResult.builder().result("leaved").build();
+        }
 
-
-
-
+        panelService.print(camera.getDescription(), "ODENIS GOZLENILIR");
+        log.info("CC OUT: not paid, price={}", price);
+        throw new NotPaidException();
     }
 
-    private LocalDateTime parseDate(String date) {
-        return LocalDateTime.parse(date);
-    }
-
-    private void checkPlate(CamerasEntity camera, CameraPayload cameraPayload) {
-        String plate = cameraPayload.getPlate();
+    private void validatePlate(CamerasEntity camera, CameraPayload payload) {
+        String plate = payload.getPlate();
         if (plate == null) {
-            String response = "Plate number is null";
-            log.info("{}", response);
-
             panelService.print(camera.getDescription(), "OXUNMADI");
-            throw new RuntimeException(response);
+            throw new BadRequestException("Plate number is null");
         }
-
         if (plate.length() < 7 && !PlateFormatter.inPattern(plate)) {
-            String response = "CAMERA SCAN ERROR (LENGTH OR PATTERN)";
-            log.info("{}", response);
-
             panelService.print(camera.getDescription(), "OXUNMADI");
-
-            throw new RuntimeException(response);
+            throw new CameraScanException();
         }
-
         if (plate.length() == 7) {
-            plate = PlateFormatter.formatPlate(plate);
+            payload.setPlate(PlateFormatter.formatPlate(plate));
         }
-        panelService.print(camera.getDescription(), plate);
+        panelService.print(camera.getDescription(), payload.getPlate());
     }
 
-    private void checkDate(CameraPayload cameraPayload) {
-        if (cameraPayload.getDateTime() == null) {
-            String response = "Date is null";
-            log.info("{}", response);
-            throw new RuntimeException(response);
+    private void validateDate(CameraPayload payload) {
+        if (payload.getDateTime() == null) {
+            throw new BadRequestException("Date is null");
         }
+    }
+
+    private static LocalDateTime parseDate(String date) {
+        return date == null ? null : LocalDateTime.parse(date);
+    }
+
+    private static String formatDateTime(LocalDateTime dateTime) {
+        return dateTime == null ? null : dateTime.format(CC_DATE_FORMAT);
     }
 }
