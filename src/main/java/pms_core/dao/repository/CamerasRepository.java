@@ -9,7 +9,6 @@ import java.util.Optional;
 
 public interface CamerasRepository extends CrudRepository<CamerasEntity, Integer> {
 
-    Optional<CamerasEntity> findByIdAndStatusAndActive(Integer id, Integer status , Integer active);
     Optional<CamerasEntity> findByIp(String ip);
 
     @Query("SELECT * FROM pms_core.cameras")

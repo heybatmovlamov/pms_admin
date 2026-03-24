@@ -9,7 +9,6 @@ import java.util.Optional;
 
 public interface SpacesRepository extends CrudRepository<SpacesEntity, Integer> {
 
-    Optional<SpacesEntity> findByIdAndStatusAndActive(Integer id, Integer status, Integer active);
 
     @Query("SELECT * FROM pms_core.spaces")
     List<SpacesEntity> findAllSpaces();

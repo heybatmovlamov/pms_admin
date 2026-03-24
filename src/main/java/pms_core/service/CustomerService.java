@@ -27,7 +27,7 @@ public class CustomerService {
 
     @Transactional(readOnly = true)
     public CustomerResponse findById(Integer id) {
-        CustomersEntity entity = repository.findByIdAndActive(id, 1)
+        CustomersEntity entity = repository.findById(id)
                 .orElseThrow(() -> DataNotFoundException.of("Customer not found with id: {0}", id));
         return mapper.toResponse(entity);
     }
@@ -46,7 +46,7 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponse update(Integer id, CustomerRequest request) {
-        CustomersEntity entity = repository.findByIdAndActive(id, 1)
+        CustomersEntity entity = repository.findById(id)
                 .orElseThrow(() -> DataNotFoundException.of("Customer not found with id: {0}", id));
         mapper.updateEntityFromRequest(request, entity);
         entity.setModified(LocalDateTime.now());
@@ -55,7 +55,7 @@ public class CustomerService {
 
     @Transactional
     public void softDelete(Integer id) {
-        CustomersEntity entity = repository.findByIdAndActive(id, 1)
+        CustomersEntity entity = repository.findById(id)
                 .orElseThrow(() -> DataNotFoundException.of("Customer not found with id: {0}", id));
         entity.setActive(0);
         repository.save(entity);

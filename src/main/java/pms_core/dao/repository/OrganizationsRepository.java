@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public interface OrganizationsRepository extends CrudRepository<OrganizationsEntity, Integer> {
 
-    Optional<OrganizationsEntity> findByIdAndStatus(Integer id, Integer status);
-
     @Query("SELECT * FROM pms_core.organizations")
     List<OrganizationsEntity> findAllOrganizations();
 

@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface UsersRepository extends CrudRepository<UsersEntity, Integer> {
 
-    Optional<UsersEntity> findByIdAndStatus(Integer id, Integer status);
     Optional<UsersEntity> findByUsername(String username);
 
     @Query("SELECT * FROM pms_core.users")

@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface OwnersRepository extends CrudRepository<OwnersEntity, Integer> {
 
-    Optional<OwnersEntity> findByIdAndStatusAndActive(Integer id, Integer status , Integer active);
     Optional<OwnersEntity> findByPlateAndActiveAndStatus(String plate,Integer active, Integer status);
 
     @Query("SELECT * FROM pms_core.owners")

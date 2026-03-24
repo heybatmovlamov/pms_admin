@@ -39,7 +39,7 @@ public class OrganizationsService {
     }
 
     public OrganizationResponse updateOrganization(Integer id, OrganizationRequest request) {
-        OrganizationsEntity entity = repository.findByIdAndStatus(id,1)
+        OrganizationsEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organization not found"));
 
         mapper.updateEntityFromRequest(request, entity);
@@ -50,7 +50,7 @@ public class OrganizationsService {
 
     @Transactional
     public String deleteOrganization(Integer id){
-        repository.findByIdAndStatus(id, 1)
+        repository.findById(id)
                 .map(organizations -> {
                     organizations.setStatus(0);
                     return repository.save(organizations);})
@@ -61,7 +61,7 @@ public class OrganizationsService {
 
     @Transactional(readOnly = true)
     public OrganizationResponse findById(Integer id){
-        return mapper.toResponse(repository.findByIdAndStatus(id, 1)
+        return mapper.toResponse(repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organization not found or already inactive")));
     }
 }

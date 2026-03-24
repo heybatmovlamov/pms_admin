@@ -34,7 +34,7 @@ public class SpacesService {
     }
 
     public SpaceResponse updateSpace(Integer id,SpaceRequest request){
-        SpacesEntity entity = repository.findByIdAndStatusAndActive(id,1,1)
+        SpacesEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Space not found"));
 
         mapper.updateEntityFromRequest(request, entity);
@@ -45,7 +45,7 @@ public class SpacesService {
 
     @Transactional
     public String deleteSpace(Integer id){
-        repository.findByIdAndStatusAndActive(id, 1, 1)
+        repository.findById(id)
                 .map(space -> {
                     space.setActive(0);
                     return repository.save(space);})
@@ -56,7 +56,7 @@ public class SpacesService {
 
     @Transactional(readOnly = true)
     public SpaceResponse findById(Integer id){
-        return mapper.toResponse(repository.findByIdAndStatusAndActive(id, 1, 1)
+        return mapper.toResponse(repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Space not found or already inactive")));
     }
 }

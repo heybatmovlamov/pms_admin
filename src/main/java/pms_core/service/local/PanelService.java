@@ -31,6 +31,10 @@ public class PanelService {
     private String panelSpeed;
 
     public void print(String panelIp, String text) {
+        if (panelIp == null || panelIp.isEmpty()){
+            log.info("Panel IP is empty or not found");
+            return;
+        }
         ExecutorService ex = executors.computeIfAbsent(panelIp, k -> Executors.newSingleThreadExecutor());
         ex.submit(() -> {
             try {

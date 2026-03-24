@@ -32,7 +32,7 @@ public class CamerasService {
 
     @Transactional
     public CameraResponse updateCamera(Integer id,CameraRequest request){
-        CamerasEntity entity = repository.findByIdAndStatusAndActive(id,1,1)
+        CamerasEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organization not found"));
 
         mapper.updateEntityFromRequest(request, entity);
@@ -44,7 +44,7 @@ public class CamerasService {
     @Transactional
     public String deleteCamera(Integer cameraId){
 
-        repository.findByIdAndStatusAndActive(cameraId, 1, 1)
+        repository.findById(cameraId)
                 .map(camera -> {
                     camera.setActive(0);
                     return repository.save(camera);})
@@ -55,7 +55,7 @@ public class CamerasService {
 
     @Transactional(readOnly = true)
     public CameraResponse findById(Integer cameraId){
-        return mapper.toResponse(repository.findByIdAndStatusAndActive(cameraId, 1, 1)
+        return mapper.toResponse(repository.findById(cameraId)
                 .orElseThrow(() -> new RuntimeException("Camera not found or already inactive")));
     }
 }

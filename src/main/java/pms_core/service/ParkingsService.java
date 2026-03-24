@@ -34,7 +34,7 @@ public class ParkingsService {
     }
 
     public ParkingResponse updateParking(Integer id,ParkingRequest request){
-        ParkingsEntity entity = repository.findByIdAndStatusAndActive(id,1,1)
+        ParkingsEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organization not found"));
 
         mapper.updateEntityFromRequest(request, entity);
@@ -44,7 +44,7 @@ public class ParkingsService {
 
     @Transactional
     public String deleteParking(Integer id){
-        repository.findByIdAndStatusAndActive(id, 1, 1)
+        repository.findById(id)
                 .map(parking -> {
                     parking.setActive(0);
                     return repository.save(parking);})
@@ -55,7 +55,7 @@ public class ParkingsService {
 
     @Transactional(readOnly = true)
     public ParkingResponse findById(Integer id){
-        return mapper.toResponse(repository.findByIdAndStatusAndActive(id, 1, 1)
+        return mapper.toResponse(repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Parking not found or already inactive")));
     }
 }

@@ -1,21 +1,20 @@
 package pms_core.service.local;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 import pms_core.config.CameraProperties;
 import pms_core.config.JSON;
+import pms_core.dao.entity.CamerasEntity;
+import pms_core.exception.DataNotFoundException;
 import pms_core.model.local.request.CameraPayload;
 
-import javax.net.ssl.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,8 +25,10 @@ import java.util.Base64;
 @Slf4j
 public class CameraFunctionService {
 
-    private final DigestAuthService  digestAuthService;
+    private final DigestAuthService digestAuthService;
     private final CameraProperties properties;
+    private final RestTemplate restTemplate;
+    private final CameraService cameraService;
 
     public CameraPayload parsePayload(String body, String cameraType) {
         CameraPayload payload = new CameraPayload();
@@ -66,118 +67,87 @@ public class CameraFunctionService {
     public void openDoor(String cameraType, String ip) {
 
         log.info("Opening door for cameraType={} ip={}", cameraType, ip);
-
-        try {
-            if ("vivotekV3".equals(cameraType)) {
-                openVivotek(ip);
-            } else {
-                openDido(ip);
-            }
-        } catch (Exception e) {
-            log.error("Open door error", e);
+        if ("vivotekV3".equals(cameraType)) {
+            sendVivotekRequest(ip, true);
+        } else {
+            sendDidoRequest(ip, true);
         }
     }
 
-    private void openVivotek(String ip) throws Exception {
+    public ResponseEntity<String> sendRequest(String ip, Boolean openOrClose) {
+        CamerasEntity camera = cameraService.findCamera(ip).orElseThrow(() -> DataNotFoundException.of("Camera or Door notfound"));
+        String type = camera.getType();
 
-        String url = "http://" + ip +
-                "/cgi-bin/operator/operator.cgi?action=set.event.io&format=json";
-
-        String jsonOpen =
-                "{\"outputIoList\":[{\"index\":0,\"outputManual\":1,\"outputTime\":-2}]}";
-        String jsonClose =
-                "{\"outputIoList\":[{\"index\":0,\"outputManual\":0,\"outputTime\":-2}]}";
-
-        for (int i = 0; i < 10; i++) {
-            if (sendDigestPost(url,properties.getVivotek().getUsername(),properties.getVivotek().getPassword(), jsonOpen)) break;
+        if ("vivotekV3".equals(type)) {
+            return sendVivotekRequest(ip, openOrClose);
+        } else {
+            return sendDidoRequest(ip, openOrClose);
         }
-
-        Thread.sleep(1000);
-
-        for (int i = 0; i < 10; i++) {
-            if (sendDigestPost(url,properties.getDidoUsername(),properties.getDidoPassword(), jsonClose)) break;
-        }
-
-        log.info("Vivotek door triggered");
     }
 
-    private void openDido(String ip) throws Exception {
+    private ResponseEntity<String> sendDidoRequest(String ip, Boolean openOrClose) {
+        int number = Boolean.TRUE.equals(openOrClose) ? 1 : 0;
 
         String url = String.format(properties.getDidoUri(), ip);
-
         String auth = properties.getDidoUsername() + ":" + properties.getDidoPassword();
         String encoded = Base64.getEncoder().encodeToString(auth.getBytes());
-
-        for (int i = 0; i < 10; i++) {
-            if (sendBasic(url + "?do0=1", encoded)) break;
-        }
-
-        Thread.sleep(1000);
-
-        for (int i = 0; i < 10; i++) {
-            if (sendBasic(url + "?do0=0", encoded)) break;
-        }
-
+        ResponseEntity<String> stringResponseEntity = sendBasicRestTemplate(url + "?do0=" + number, encoded);
         log.info("DIDO door triggered");
+
+        return stringResponseEntity;
     }
 
-    private boolean sendBasic(String url, String auth) {
-        try {
-            HttpURLConnection con =
-                    (HttpURLConnection) new URL(url).openConnection();
+    private ResponseEntity<String> sendBasicRestTemplate(String url, String auth) {
+        ResponseEntity<String> response = null;
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Basic " + auth);
 
-            con.setRequestMethod("GET");
-            con.setRequestProperty("Authorization", "Basic " + auth);
-            con.setConnectTimeout(10_000);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            if (con instanceof HttpsURLConnection) {
-                try {
-                    TrustManager[] tmp = new TrustManager[]{
-                            new X509TrustManager() {
-                                @Override
-                                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                                    return null;
-                                }
+            response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+        return response;
+    }
 
-                                @Override
-                                public void checkClientTrusted(
-                                        X509Certificate[] chain,
-                                        String type) {
-                                }
+    private ResponseEntity<String> sendVivotekRequest(String ip, Boolean openOrClose) {
+        int number = Boolean.TRUE.equals(openOrClose) ? 1 : 0;
 
-                                @Override
-                                public void checkServerTrusted(
-                                        X509Certificate[] chain,
-                                        String type
-                                ) {
-                                }
-                            }
-                    };
-                    SSLContext context
-                            = SSLContext.getInstance("SSL");
-                    context.init(
-                            null,
-                            tmp,
-                            new java.security.SecureRandom()
-                    );
-                    SSLSocketFactory factory = context.getSocketFactory();
-                    ((HttpsURLConnection) con).setSSLSocketFactory(factory);
-                } catch (
-                        NoSuchAlgorithmException
-                        | KeyManagementException e
-                ) {
-                    log.info("HTTPS URL Connection Error: {}", e.getMessage());
+        RestTemplate restTemplate = new RestTemplate();
+
+        String url = "http://" + ip + "/cgi-bin/operator/operator.cgi?action=set.event.io&format=json";
+
+        String body = """
+                {
+                  "outputIoList":[
+                    {
+                      "index":0,
+                      "outputManual":%d,
+                      "outputTime":-2
+                    }
+                  ]
                 }
-            }
+                """.formatted(number);
 
-            return con.getResponseCode() == 200;
-        } catch (Exception e) {
-            return false;
-        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBasicAuth(properties.getVivotek().getUsername(), properties.getVivotek().getPassword());
+
+        HttpEntity<String> request = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                request,
+                String.class
+        );
+
+        System.out.println(response.getBody());
+        return response;
     }
 
-    private boolean sendDigestPost(String url, String username , String password , String json) {
-       return digestAuthService.postJson(url,username,password,json);
-    }
 }
 

@@ -35,7 +35,7 @@ public class TariffsService {
 
     @Transactional
     public TariffResponse updateTariff(Integer id ,TariffRequest request){
-        TariffsEntity entity = repository.findByIdAndStatusAndActive(id,1,1)
+        TariffsEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organization not found"));
 
         mapper.updateEntityFromRequest(request, entity);
@@ -45,7 +45,7 @@ public class TariffsService {
 
     @Transactional
     public String deleteTariff(Integer id){
-        repository.findByIdAndStatusAndActive(id, 1, 1)
+        repository.findById(id)
                 .map(tariff -> {
                     tariff.setActive(0);
                     return repository.save(tariff);})
@@ -56,7 +56,7 @@ public class TariffsService {
 
     @Transactional(readOnly = true)
     public TariffResponse findById(Integer id){
-        return mapper.toResponse(repository.findByIdAndStatusAndActive(id, 1, 1)
+        return mapper.toResponse(repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tariff not found or already inactive")));
     }
 }

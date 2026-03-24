@@ -8,6 +8,8 @@ import pms_core.model.request.TransactionListRequest;
 import pms_core.model.response.TransactionResponse;
 import pms_core.service.TransactionsService;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/transactions")
@@ -18,5 +20,10 @@ public class TransactionController {
     @PostMapping("/list")
     public ResponseEntity<Page<TransactionResponse>> list(@RequestBody(required = false) TransactionListRequest request) {
         return ResponseEntity.ok(transactionsService.findAll(request));
+    }
+
+    @GetMapping("/closing-day")
+    public ResponseEntity<List<TransactionResponse>> closingDay() {
+        return ResponseEntity.ok(transactionsService.findEndDayOfTransactions());
     }
 }

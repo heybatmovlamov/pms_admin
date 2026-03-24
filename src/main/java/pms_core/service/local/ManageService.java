@@ -146,7 +146,7 @@ public class ManageService {
             panelService.print(camera.getDescription(), "OXUNMADI");
             throw new CameraScanException();
         }
-        if (plate.length() == 7) {
+        if (plate.length() >= 7) {
             payload.setPlate(PlateFormatter.formatPlate(plate));
         }
         panelService.print(camera.getDescription(), payload.getPlate());

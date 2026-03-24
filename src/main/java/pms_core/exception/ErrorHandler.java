@@ -8,6 +8,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.format.DateTimeParseException;
@@ -87,18 +88,33 @@ public class ErrorHandler {
         return new ErrorResponse(ex.getErrorCode(), ex.getMessage());
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
-        String msg = ex.getMessage();
-        addErrorLog(BAD_REQUEST, "ERROR", msg, "RuntimeException");
+//    @ExceptionHandler(RuntimeException.class)
+//    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+//        String msg = ex.getMessage();
+//        addErrorLog(BAD_REQUEST, "ERROR", msg, "RuntimeException");
+//
+//        if (msg == null || msg.isBlank()) {
+//            return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse("ERROR", "Bad request"));
+//        }
+//        if (msg.contains("not found") || msg.contains("Not found")) {
+//            return ResponseEntity.status(NOT_FOUND).body(new ErrorResponse("NOT_FOUND", msg));
+//        }
+//        return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse("ERROR", msg));
+//    }
 
-        if (msg == null || msg.isBlank()) {
-            return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse("ERROR", "Bad request"));
+    @ExceptionHandler(ResourceAccessException.class)
+    @ResponseStatus(HttpStatus.GATEWAY_TIMEOUT)
+    public ErrorResponse handleResourceAccess(ResourceAccessException ex) {
+
+        String message = "Connection timeout";
+
+        if (ex.getMessage() != null && ex.getMessage().contains("timed out")) {
+            message = "Connection timed out";
         }
-        if (msg.contains("not found") || msg.contains("Not found")) {
-            return ResponseEntity.status(NOT_FOUND).body(new ErrorResponse("NOT_FOUND", msg));
-        }
-        return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse("ERROR", msg));
+
+        addErrorLog(HttpStatus.GATEWAY_TIMEOUT, "TIMEOUT", message, "ResourceAccessException");
+
+        return new ErrorResponse("TIMEOUT", message);
     }
 
     @ExceptionHandler(Exception.class)

@@ -11,7 +11,6 @@ import java.util.Optional;
 
 public interface ParkingsRepository extends CrudRepository<ParkingsEntity, Integer> {
 
-    Optional<ParkingsEntity> findByIdAndStatusAndActive(Integer id, Integer status, Integer active);
 
     @Query("SELECT * FROM pms_core.parkings")
     List<ParkingsEntity> findAllParkings();

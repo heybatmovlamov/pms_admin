@@ -35,7 +35,7 @@ public class OwnersService {
 
     @Transactional
     public OwnerResponse updateOwner(Integer id,OwnerRequest request){
-        OwnersEntity entity = repository.findByIdAndStatusAndActive(id,1,1)
+        OwnersEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organization not found"));
 
         mapper.updateEntityFromRequest(request, entity);
@@ -46,7 +46,7 @@ public class OwnersService {
 
     @Transactional
     public String deleteOwner(Integer id){
-        repository.findByIdAndStatusAndActive(id, 1, 1)
+        repository.findById(id)
                 .map(owner -> {
                     owner.setActive(0);
                     return repository.save(owner);})
@@ -56,7 +56,7 @@ public class OwnersService {
 
     @Transactional(readOnly = true)
     public OwnerResponse findById(Integer id){
-        return mapper.toResponse(repository.findByIdAndStatusAndActive(id, 1, 1)
+        return mapper.toResponse(repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Owner not found or already inactive")));
     }
 }

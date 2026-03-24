@@ -19,7 +19,9 @@ public class VehicleController {
 
     @GetMapping
     public ResponseEntity<List<VehicleResponse>> getAllVehicles(){
-        //pagination add in here
+        //filter gunluk ayliq ne zaman girib
+        //subscribe idendifikasiyasi
+        //vehicle owner nut null return
         return ResponseEntity.ok(vehiclesService.findAll());
     }
 
@@ -28,15 +30,8 @@ public class VehicleController {
         return ResponseEntity.ok(vehiclesService.findVehicleByPlate(plate));
     }
 
-    @PutMapping
-    public ResponseEntity<VehicleResponse> updateVehicleByPlate(@RequestBody VehicleUpdateRequest request){
-        return ResponseEntity.ok(vehiclesService.updateVehicle(request));
+    @PutMapping("/{id}")
+    public ResponseEntity<VehicleResponse> updateVehicleByPlate(@PathVariable Integer id,@RequestBody VehicleUpdateRequest request){
+        return ResponseEntity.ok(vehiclesService.updateVehicle(id,request));
     }
-
-    //export vehicle data
-    @GetMapping("/export")
-    public ResponseEntity<VehicleResponse> exportVehicleByPlate(@RequestParam String plate){
-        return ResponseEntity.ok(null);
-    }
-
 }

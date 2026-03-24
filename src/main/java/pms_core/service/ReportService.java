@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pms_core.dao.entity.TransactionsEntity;
-import pms_core.dao.repository.TransactionsRepository;
+import pms_core.dao.repository.transactions.TransactionsRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;

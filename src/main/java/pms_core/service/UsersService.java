@@ -37,7 +37,7 @@ public class UsersService {
 
     @Transactional
     public UserResponse updateUser(Integer id , UserRequest request){
-        UsersEntity entity = repository.findByIdAndStatus(id,1)
+        UsersEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         mapper.updateEntityFromRequest(request, entity);
@@ -48,18 +48,18 @@ public class UsersService {
 
     @Transactional
     public String deleteUser(Integer id){
-        repository.findByIdAndStatus(id, 1)
+        repository.findById(id)
                 .map(user -> {
                     user.setStatus(0);
                     return repository.save(user);})
                 .orElseThrow(() -> new RuntimeException("User not found or already inactive"));
 
-        return "User deleted !";
+        return "User "+ id + " deleted ! ";
     }
 
     @Transactional(readOnly = true)
     public UserResponse findById(Integer id){
-        return mapper.toResponse(repository.findByIdAndStatus(id, 1)
+        return mapper.toResponse(repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found or already inactive")));
     }
 
