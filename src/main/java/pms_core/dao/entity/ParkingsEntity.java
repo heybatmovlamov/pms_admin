@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Table(name = "parkings", schema = "pms_core")
+@Table(name = "parkings")
 @Data
 public class ParkingsEntity {
 

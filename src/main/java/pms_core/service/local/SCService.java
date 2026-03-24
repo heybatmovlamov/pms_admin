@@ -137,10 +137,9 @@ public class SCService {
                 .totalDuration((int) totalMinutes)
                 .amount(BigDecimal.valueOf(amount))
                 .currency(currency)
-                .reference(null)
                 .datetime(LocalDateTime.now())
                 .method(method != null ? method : "Cash")
-                .description(null)
+                .detail(null)
                 .status(STATUS_PAID)
                 .build();
         transactionsRepository.save(transaction);

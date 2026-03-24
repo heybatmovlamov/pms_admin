@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
-@Table(name = "organizations", schema = "pms_core")
+@Table(name = "organizations")
 @Data
 public class OrganizationsEntity {
 

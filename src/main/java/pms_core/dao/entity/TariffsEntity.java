@@ -8,7 +8,7 @@ import pms_core.model.enums.VehicleType;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 
-@Table(name = "tariffs", schema = "pms_core")
+@Table(name = "tariffs")
 @Data
 public class TariffsEntity {
 

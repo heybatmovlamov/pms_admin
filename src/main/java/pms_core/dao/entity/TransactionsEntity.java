@@ -12,7 +12,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Table(name = "transactions", schema = "pms_core")
+@Table(name = "transactions")
 @Getter
 @Setter
 @Builder
@@ -35,9 +35,8 @@ public class TransactionsEntity {
     private String currency;
     @Column("txn_id")
     private String txnId;
-    private String reference;
     private LocalDateTime datetime;
     private String method;
-    private String description;
+    private String detail;
     private Integer status;
 }

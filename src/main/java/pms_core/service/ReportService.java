@@ -46,7 +46,7 @@ public class ReportService {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Transactions");
 
-            String[] headers = {"ID", "Organization", "Parking", "Customer", "Vehicle", "Vehicle Plate", "Tariff", "Total Duration", "Amount", "Currency", "Txn ID", "Reference", "Datetime", "Method", "Description", "Status"};
+            String[] headers = {"ID", "Organization", "Parking", "Customer", "Vehicle", "Vehicle Plate", "Tariff", "Total Duration", "Amount", "Currency", "Txn ID", "Datetime", "Method", "Detail", "Status"};
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < headers.length; i++) {
                 headerRow.createCell(i).setCellValue(headers[i]);
@@ -66,10 +66,9 @@ public class ReportService {
                 row.createCell(8).setCellValue(t.getAmount() != null ? t.getAmount().doubleValue() : 0);
                 row.createCell(9).setCellValue(t.getCurrency() != null ? t.getCurrency() : "");
                 row.createCell(10).setCellValue(t.getTxnId() != null ? t.getTxnId() : "");
-                row.createCell(11).setCellValue(t.getReference() != null ? t.getReference() : "");
                 row.createCell(12).setCellValue(t.getDatetime() != null ? t.getDatetime().format(DATE_TIME_FORMAT) : "");
                 row.createCell(13).setCellValue(t.getMethod() != null ? t.getMethod() : "");
-                row.createCell(14).setCellValue(t.getDescription() != null ? t.getDescription() : "");
+                row.createCell(14).setCellValue(t.getDetail() != null ? t.getDetail() : "");
                 row.createCell(15).setCellValue(t.getStatus() != null ? t.getStatus() : 0);
             }
 

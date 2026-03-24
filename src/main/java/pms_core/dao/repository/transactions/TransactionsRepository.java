@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface TransactionsRepository extends CrudRepository<TransactionsEntity, Integer>, PagingAndSortingRepository<TransactionsEntity, Integer>, CustomTransactionRepository {
     Optional<TransactionsEntity> findFirstByTxnIdAndStatus(String txnId, Integer status);
 
-    @Query("SELECT COALESCE(SUM(amount), 0) FROM pms_core.transactions WHERE vehicle = :vehicleId AND status = 1")
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE vehicle = :vehicleId AND status = 1")
     BigDecimal sumAmountByVehicleIdAndStatus(@Param("vehicleId") Integer vehicleId);
 
     Page<TransactionsEntity> findByDatetimeBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);

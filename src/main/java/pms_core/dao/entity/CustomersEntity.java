@@ -11,7 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Table(name = "customers", schema = "pms_core")
+@Table(name = "customers")
 @Data
 @Builder
 @NoArgsConstructor

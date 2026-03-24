@@ -58,6 +58,7 @@ public class CameraFunctionService {
 
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
         return payload;
@@ -99,17 +100,17 @@ public class CameraFunctionService {
 
     private ResponseEntity<String> sendBasicRestTemplate(String url, String auth) {
         ResponseEntity<String> response = null;
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Basic " + auth);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Basic " + auth);
 
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    entity,
-                    String.class
-            );
+        response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
         return response;
     }
 
@@ -120,6 +121,7 @@ public class CameraFunctionService {
 
         String url = "http://" + ip + "/cgi-bin/operator/operator.cgi?action=set.event.io&format=json";
 
+        log.info("URL: " + url);
         String body = """
                 {
                   "outputIoList":[

@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
-@Table(name = "closing_time" , schema = "pms_core")
+@Table(name = "closing_time")
 @Data
 public class ClosingEntity {
 

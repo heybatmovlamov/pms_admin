@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Table(name = "users", schema = "pms_core")
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor

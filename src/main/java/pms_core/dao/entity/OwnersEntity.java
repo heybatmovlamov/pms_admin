@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
-@Table(name = "owners", schema = "pms_core")
+@Table(name = "owners")
 @Data
 public class OwnersEntity {
 

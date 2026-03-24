@@ -187,7 +187,7 @@ public class ExportService {
 
 
     private String buildTransactionsCsv(List<TransactionsEntity> list) {
-        String header = "ID,Organization,Parking,Customer,Vehicle,Vehicle Plate,Tariff,Total Duration,Amount,Currency,Txn ID,Reference,Datetime,Method,Description,Status";
+        String header = "ID,Organization,Parking,Customer,Vehicle,Vehicle Plate,Tariff,Total Duration,Amount,Currency,Txn ID,Datetime,Method,Detail,Status";
         StringBuilder sb = new StringBuilder(header).append("\n");
         for (TransactionsEntity t : list) {
             sb.append(csvInt(t.getId())).append(",")
@@ -201,10 +201,9 @@ public class ExportService {
                     .append(t.getAmount() != null ? t.getAmount().doubleValue() : "").append(",")
                     .append(csvStr(t.getCurrency())).append(",")
                     .append(csvStr(t.getTxnId())).append(",")
-                    .append(csvStr(t.getReference())).append(",")
                     .append(t.getDatetime() != null ? t.getDatetime().format(DATE_TIME_FORMAT) : "").append(",")
                     .append(csvStr(t.getMethod())).append(",")
-                    .append(csvStr(t.getDescription())).append(",")
+                    .append(csvStr(t.getDetail())).append(",")
                     .append(csvInt(t.getStatus())).append("\n");
         }
         return sb.toString();
@@ -212,7 +211,7 @@ public class ExportService {
 
     private void writeTransactionsSheet(Workbook workbook, List<TransactionsEntity> list) {
         Sheet sheet = workbook.createSheet("Transactions");
-        String[] headers = {"ID", "Organization", "Parking", "Customer", "Vehicle", "Vehicle Plate", "Tariff", "Total Duration", "Amount", "Currency", "Txn ID", "Reference", "Datetime", "Method", "Description", "Status"};
+        String[] headers = {"ID", "Organization", "Parking", "Customer", "Vehicle", "Vehicle Plate", "Tariff", "Total Duration", "Amount", "Currency", "Txn ID", "Datetime", "Method", "Detail", "Status"};
         Row headerRow = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
             headerRow.createCell(i).setCellValue(headers[i]);
@@ -231,11 +230,10 @@ public class ExportService {
             row.createCell(8).setCellValue(t.getAmount() != null ? t.getAmount().doubleValue() : 0);
             row.createCell(9).setCellValue(t.getCurrency() != null ? t.getCurrency() : "");
             row.createCell(10).setCellValue(t.getTxnId() != null ? t.getTxnId() : "");
-            row.createCell(11).setCellValue(t.getReference() != null ? t.getReference() : "");
-            row.createCell(12).setCellValue(t.getDatetime() != null ? t.getDatetime().format(DATE_TIME_FORMAT) : "");
-            row.createCell(13).setCellValue(t.getMethod() != null ? t.getMethod() : "");
-            row.createCell(14).setCellValue(t.getDescription() != null ? t.getDescription() : "");
-            row.createCell(15).setCellValue(t.getStatus() != null ? t.getStatus() : 0);
+            row.createCell(11).setCellValue(t.getDatetime() != null ? t.getDatetime().format(DATE_TIME_FORMAT) : "");
+            row.createCell(12).setCellValue(t.getMethod() != null ? t.getMethod() : "");
+            row.createCell(13).setCellValue(t.getDetail() != null ? t.getDetail() : "");
+            row.createCell(14).setCellValue(t.getStatus() != null ? t.getStatus() : 0);
         }
         for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);

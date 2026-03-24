@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-@Table(name = "vehicles", schema = "pms_core")
+@Table(name = "vehicles")
 @Getter
 @Setter
 @Builder
