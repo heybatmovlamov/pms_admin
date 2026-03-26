@@ -33,6 +33,8 @@ public class VehiclesEntity {
     private Integer owner;
     private String type;
     private String description;
+    @Builder.Default
     private Integer active = 1;
+    @Builder.Default
     private Integer status = 1;
 }

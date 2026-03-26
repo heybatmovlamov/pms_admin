@@ -11,8 +11,8 @@ public interface VehiclesRepository extends CrudRepository<VehiclesEntity, Integ
 
     Optional<VehiclesEntity> findByPlateAndStatusAndActive(String plate, Integer status, Integer active);
     Optional<VehiclesEntity> findByIdAndStatusAndActive(Integer id, Integer status, Integer active);
-    Optional<VehiclesEntity> findFirstByPlateAndActiveOrderByCreatedDesc(String plate, Integer active);
+    Optional<VehiclesEntity> findFirstByPlateAndActiveAndStatusOrderByCreatedDesc(String plate, Integer active , Integer status);
 
-    @Query("SELECT * FROM vehicles")
+    @Query("SELECT * FROM pms_core.vehicles")
     List<VehiclesEntity> findAllVehicles();
 }

@@ -1,12 +1,7 @@
 package pms_core.model.request;
 
 import lombok.Data;
-import pms_core.dao.entity.OrganizationsEntity;
-import pms_core.dao.entity.ParkingsEntity;
-
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 public class UserRequest {

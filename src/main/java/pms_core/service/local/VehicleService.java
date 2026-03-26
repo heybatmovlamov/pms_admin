@@ -20,12 +20,16 @@ public class VehicleService {
     private final VehiclesRepository vehicleRepository;
 
     public VehiclesEntity getActiveVehicleByPlate(CameraPayload cameraPayload) {
-        var optional = vehicleRepository.findFirstByPlateAndActiveOrderByCreatedDesc(cameraPayload.getPlate(), 1);
-        optional.ifPresent(this::vehicleReset);
-        return optional.get();
+        return vehicleRepository.findFirstByPlateAndActiveAndStatusOrderByCreatedDesc(cameraPayload.getPlate(), 1, 1).get();
     }
 
-    public void vehicleReset(VehiclesEntity entity) {
+    public void vehicleEqualsNull(VehiclesEntity vehiclesEntity) {
+        if (vehiclesEntity == null) {
+
+        }
+    }
+
+    public void ifVehicleEntered(VehiclesEntity entity) {
         if (entity != null) {
             log.info("Vehicle already entered. Update status....");
             log.info("Vehicle RESET....");
@@ -36,13 +40,13 @@ public class VehicleService {
         }
     }
 
-    public VehiclesEntity addVehicle(String plate,
-                           String path,
-                           LocalDateTime dateTime,
-                           String vehicleAction,
-                           Integer tariffId,
-                           Integer tariffDurationStart,
-                           CamerasEntity camera) {
+    public VehiclesEntity addVehicleIn(String path,
+                                       String plate,
+                                       LocalDateTime dateTime,
+                                       String vehicleAction,
+                                       Integer tariffId,
+                                       Integer tariffDurationStart,
+                                       CamerasEntity camera) {
 
         VehiclesEntity entity = VehiclesEntity.builder()
                 .plate(plate)
@@ -61,6 +65,38 @@ public class VehicleService {
                 .description(plate + " : " + vehicleAction)
                 .active(1)
                 .status(1)
+                .build();
+
+
+        return vehicleRepository.save(entity);
+    }
+
+    public VehiclesEntity addVehicleOut(String path,
+                                        String plate,
+                                        Integer tariffId,
+                                        Integer ownerId,
+                                        LocalDateTime dateTime,
+                                        CamerasEntity camera,
+                                        Integer active,
+                                        Integer status) {
+
+
+        VehiclesEntity entity = VehiclesEntity.builder()
+                .plate(plate)
+                .tariff(tariffId)
+                .scanned(dateTime)
+                .exit(LocalDateTime.now())
+                .type("DEFAULT")
+                .owner(ownerId)
+                .organization(camera.getOrganization())
+                .parking(camera.getParking())
+                .space(camera.getSpace())
+                .brand("---")
+                .color(camera.getName() + ":" + camera.getIp())
+                .action(path.toUpperCase())
+                .description(plate + " : " + dateTime)
+                .active(active)
+                .status(status)
                 .build();
 
         return vehicleRepository.save(entity);

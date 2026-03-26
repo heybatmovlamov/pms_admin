@@ -62,4 +62,8 @@ public class UsersService {
         return mapper.toResponse(repository.findByIdAndStatus(id, 1)
                 .orElseThrow(() -> new RuntimeException("User not found or already inactive")));
     }
+
+    public UserResponse findByUsername(String username){
+        return mapper.toResponse(repository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found or already inactive")));
+    }
 }

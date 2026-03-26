@@ -1,0 +1,29 @@
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+    <springProperty name="LOG_PATH" source="log.path"/>
+
+    <property name="CONSOLE_PATTERN"
+              value="%clr([%X{traceId}]){blue} %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5level) -> %msg%n" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/acm.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/acm.%d{dd.MM.yyyy}.log</fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%X{traceId}] %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level -> %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>

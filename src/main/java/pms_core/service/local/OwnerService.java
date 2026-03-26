@@ -3,6 +3,7 @@ package pms_core.service.local;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import pms_core.dao.entity.OwnersEntity;
 import pms_core.dao.repository.OwnersRepository;
 
 @Slf4j
@@ -16,5 +17,9 @@ public class OwnerService {
         repository.findByPlateAndActiveAndStatus(plate,1,3).ifPresent(v -> {
                 log.info("Owner with plate (" + plate + ") is Blocked..");
                 throw new RuntimeException("BLOCKED");});
+    }
+
+    public OwnersEntity findOwnerByPlate(String plate){
+        return repository.findByPlateAndActiveAndStatus(plate,1,1).get();
     }
 }

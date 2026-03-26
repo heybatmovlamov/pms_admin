@@ -11,20 +11,20 @@ import org.springframework.web.bind.annotation.RestController;
 import pms_core.service.local.ManageService;
 
 @RestController
-@RequestMapping("/cc")
+//@RequestMapping("/cc")
 @RequiredArgsConstructor
 @Slf4j
 public class CameraController {
 
     private final ManageService manageService;
 
-    @PostMapping("/in")
-    public void vehicleIn(
-            @RequestBody String request,
-            HttpServletRequest httpRequest
-    ) {
-        manageService.in(httpRequest.getRemoteAddr(),request);
-    }
+//    @PostMapping("/in")
+//    public void vehicleIn(
+//            @RequestBody String request,
+//            HttpServletRequest httpRequest
+//    ) {
+//        manageService.in(httpRequest.getRemoteAddr(),request);
+//    }
 
 //    @PostMapping("/out")
 //    public ResponseEntity<?> vehicleOut(
