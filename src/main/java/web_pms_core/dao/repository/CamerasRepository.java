@@ -11,6 +11,6 @@ public interface CamerasRepository extends CrudRepository<CamerasEntity, Integer
 
     Optional<CamerasEntity> findByIp(String ip);
 
-    @Query("SELECT * FROM pms_core.cameras")
+    @Query("SELECT * FROM cameras")
     List<CamerasEntity> findAllCamera();
 }

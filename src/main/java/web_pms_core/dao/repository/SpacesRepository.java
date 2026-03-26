@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface SpacesRepository extends CrudRepository<SpacesEntity, Integer> {
 
-
-    @Query("SELECT * FROM pms_core.spaces")
+    @Query("SELECT * FROM spaces")
     List<SpacesEntity> findAllSpaces();
 }

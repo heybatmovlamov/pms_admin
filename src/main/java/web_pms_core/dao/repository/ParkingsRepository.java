@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface ParkingsRepository extends CrudRepository<ParkingsEntity, Integer> {
 
-
-    @Query("SELECT * FROM pms_core.parkings")
+    @Query("SELECT * FROM parkings")
     List<ParkingsEntity> findAllParkings();
 }

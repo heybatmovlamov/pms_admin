@@ -12,6 +12,6 @@ public interface UsersRepository extends CrudRepository<UsersEntity, Integer> {
 
     Optional<UsersEntity> findByUsername(String username);
 
-    @Query("SELECT * FROM pms_core.users")
+    @Query("SELECT * FROM users")
     List<UsersEntity> findAllUsers();
 }

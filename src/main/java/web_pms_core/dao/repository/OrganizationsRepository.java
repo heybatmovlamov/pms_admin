@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface OrganizationsRepository extends CrudRepository<OrganizationsEntity, Integer> {
 
-    @Query("SELECT * FROM pms_core.organizations")
+    @Query("SELECT * FROM organizations")
     List<OrganizationsEntity> findAllOrganizations();
 
 }

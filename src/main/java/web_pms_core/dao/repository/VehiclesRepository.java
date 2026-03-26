@@ -13,7 +13,7 @@ public interface VehiclesRepository extends CrudRepository<VehiclesEntity, Integ
     Optional<VehiclesEntity> findByPlate(String plate);
     Optional<VehiclesEntity> findFirstByPlateAndActiveAndStatusOrderByCreatedDesc(String plate, Integer active , Integer status);
 
-    @Query("SELECT * FROM pms_core.vehicles")
+    @Query("SELECT * FROM vehicles")
     List<VehiclesEntity> findAllVehicles();
 
     List<VehiclesEntity> findByCreatedBetween(LocalDateTime start, LocalDateTime end);

@@ -9,6 +9,6 @@ import java.util.List;
 public interface CustomersRepository extends CrudRepository<CustomersEntity, Integer> {
 
 
-    @Query("SELECT * FROM pms_core.customers WHERE active = 1 ORDER BY id DESC")
+    @Query("SELECT * FROM customers WHERE active = 1 ORDER BY id DESC")
     List<CustomersEntity> findAllActive();
 }

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TransactionsRepository extends CrudRepository<TransactionsEntity, Integer>, PagingAndSortingRepository<TransactionsEntity, Integer>, CustomTransactionRepository {
+
     Optional<TransactionsEntity> findFirstByTxnIdAndStatus(String txnId, Integer status);
 
     @Query("SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE vehicle = :vehicleId AND status = 1")

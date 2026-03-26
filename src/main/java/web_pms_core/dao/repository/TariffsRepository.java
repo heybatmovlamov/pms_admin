@@ -7,10 +7,10 @@ import web_pms_core.dao.entity.TariffsEntity;
 import java.util.List;
 import java.util.Optional;
 
-public interface TariffsRepository extends CrudRepository<TariffsEntity, Integer> {
+public interface  TariffsRepository extends CrudRepository<TariffsEntity, Integer> {
 
     Optional<TariffsEntity> findByOrganizationAndParkingAndSpaceAndValidDaysAndActiveAndStatus(Integer organization, Integer parking, Integer space, Integer validDays, Integer active, Integer status);
 
-    @Query("SELECT * FROM pms_core.tariffs")
+    @Query("SELECT * FROM tariffs")
     List<TariffsEntity> findAllTariffs();
 }

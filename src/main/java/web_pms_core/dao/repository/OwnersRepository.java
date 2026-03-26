@@ -11,6 +11,6 @@ public interface OwnersRepository extends CrudRepository<OwnersEntity, Integer> 
 
     Optional<OwnersEntity> findByPlateAndActiveAndStatus(String plate,Integer active, Integer status);
 
-    @Query("SELECT * FROM pms_core.owners")
+    @Query("SELECT * FROM owners")
     List<OwnersEntity> findAllOwners();
 }
