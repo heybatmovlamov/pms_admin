@@ -22,9 +22,55 @@ import java.util.Base64;
 @Slf4j
 public class CameraFunctionService {
 
+    private final DigestAuthService digestAuthService;
     private final CameraProperties properties;
     private final RestTemplate restTemplate;
     private final CameraService cameraService;
+
+    public CameraPayload parsePayload(String body, String cameraType) {
+        CameraPayload payload = new CameraPayload();
+        try {
+            JSON.Object json = new JSON(body).parseObject();
+            String plate;
+            String date;
+            switch (cameraType) {
+                case "vivotekV2":
+                    json = json.getObject("infoplate");
+                    plate = json.getString("Plate");
+                    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+                    date = LocalDateTime.parse(json.getString("DateHour"), formatter2).toString();
+                    break;
+                case "vivotekV3":
+                    plate = json.getString("license_plate");
+                    DateTimeFormatter formatter3 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+                    date = LocalDateTime.parse(json.getString("time"), formatter3).toString();
+                    break;
+                default:
+                    plate = json.getString("plate");
+                    OffsetDateTime offsetDateTime = OffsetDateTime.parse(json.getString("date"));
+                    date = offsetDateTime.toLocalDateTime().toString();
+            }
+            payload.setPlate(plate);
+            payload.setDateTime(date);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+        return payload;
+    }
+
+    @Async("cameraExecutor")
+    public void openDoor(String cameraType, String ip) {
+
+        log.info("Opening door for cameraType={} ip={}", cameraType, ip);
+        if ("vivotekV3".equals(cameraType)) {
+            sendVivotekRequest(ip, true);
+        } else {
+            sendDidoRequest(ip, true);
+        }
+    }
 
     public ResponseEntity<String> sendRequest(String ip, Boolean openOrClose) {
         CamerasEntity camera = cameraService.findCamera(ip).orElseThrow(() -> DataNotFoundException.of("Camera or Door notfound"));
